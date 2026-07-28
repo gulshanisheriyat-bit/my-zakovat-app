@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Zakovat Prezentatsiya Tizimi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -13,19 +13,25 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0b0e14; color: #e2e8f0; user-select: none; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #0b0e14; color: #e2e8f0; user-select: none; margin: 0; padding: 0; height: 100vh; overflow: hidden; }
         .pres-bg { background-color: #050811; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
         .timer-ring-circle { transition: stroke-dashoffset 0.3s linear, stroke 0.3s ease; transform: rotate(-90deg); transform-origin: 50% 50%; }
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .pulse-danger { animation: pulseRed 1s infinite; }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 70% { box-shadow: 0 0 0 15px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
-        .loading-spinner { border: 3px solid rgba(99,102,241,0.2); border-top-color: #6366f1; border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; }
+        .loading-spinner { border: 3px solid rgba(99,102,241,0.2); border-top-color: #6366f1; border-radius: 50%; width: 2.5rem; height: 2.5rem; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        .server-pkg-item { transition: background 0.2s; cursor: pointer; }
+        .server-pkg-item:hover { background: #1e293b; }
+
+        /* Fullscreen – faqat matn va tugmalar kichrayadi, timer ring o‘lchami o‘zgarmaydi */
         #view-presentation.fullscreen-active .pres-header {
             padding-top: 0.25rem !important;
             padding-bottom: 0.25rem !important;
@@ -52,12 +58,41 @@
             height: 2rem !important;
             border-radius: 0.5rem !important;
         }
-        .server-pkg-item {
-            transition: background 0.2s;
-            cursor: pointer;
+
+        /* Moslashuvchanlik */
+        @media (max-width: 640px) {
+            #app-header { padding: 0.5rem 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+            #app-header .flex:first-child { flex: 1 1 100%; justify-content: center; }
+            #view-editor { padding: 0.75rem; }
+            .pres-header { padding: 0.5rem 0.75rem !important; flex-wrap: wrap; gap: 0.5rem; }
+            .pres-header #header-timer-box { padding: 0.25rem 0.5rem !important; }
+            .pres-header .flex.items-center.gap-3:last-child { gap: 0.25rem; }
+            #pres-q-text { font-size: 1.5rem !important; }
+            #pres-answer-text { font-size: 1.25rem !important; }
+            #pres-content-wrapper { padding: 0.5rem 0; }
+            .pres-footer { padding: 0.5rem 0.75rem !important; grid-template-columns: 1fr auto 1fr !important; }
+            .pres-footer button { width: 2.5rem !important; height: 2.5rem !important; }
+            .pres-footer .hidden.md\\:block { display: none !important; }
+            #view-editor .grid-cols-1.md\\:grid-cols-4 { grid-template-columns: 1fr 1fr; }
+            #server-packages-list { max-height: 50vh; }
         }
-        .server-pkg-item:hover {
-            background: #1e293b;
+        @media (max-width: 480px) {
+            #view-editor .grid-cols-1.md\\:grid-cols-4 { grid-template-columns: 1fr; }
+            #pres-q-text { font-size: 1.25rem !important; }
+            #pres-answer-text { font-size: 1rem !important; }
+            .pres-header .flex.items-center.gap-4 { gap: 0.25rem; }
+            .pres-header #pres-pkg-name { font-size: 0.6rem; }
+            #header-timer-box .w-7 { width: 1.8rem; height: 1.8rem; }
+            #header-timer-box .w-7 svg { width: 100%; height: 100%; }
+            #timer-text { font-size: 0.9rem; width: 1.8rem; }
+        }
+        /* Landscape telefonlar uchun */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .pres-header { padding: 0.25rem 0.75rem !important; }
+            .pres-footer { padding: 0.25rem 0.75rem !important; }
+            #pres-q-text { font-size: 1.5rem !important; }
+            #pres-answer-text { font-size: 1.2rem !important; }
+            #view-presentation .flex-1.px-12 { padding-left: 1.5rem; padding-right: 1.5rem; }
         }
     </style>
 </head>
@@ -88,88 +123,88 @@
     </div>
 
     <!-- Header -->
-    <header id="app-header" class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between z-20">
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">Z</div><span class="font-extrabold text-lg tracking-tight text-white">Zakovat<span class="text-indigo-400">Presenter</span></span></div>
-            <span id="package-title-display" class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">Paket: <span id="current-pkg-name">Zakovat 27.07.2026</span></span>
+    <header id="app-header" class="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-2 sm:py-3 flex items-center justify-between z-20 flex-wrap gap-2">
+        <div class="flex items-center gap-2 sm:gap-4">
+            <div class="flex items-center gap-2"><div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30 text-sm sm:text-base">Z</div><span class="font-extrabold text-base sm:text-lg tracking-tight text-white">Zakovat<span class="text-indigo-400">Presenter</span></span></div>
+            <span id="package-title-display" class="text-[10px] sm:text-xs bg-slate-800 text-slate-300 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-slate-700 truncate max-w-[120px] sm:max-w-xs">Paket: <span id="current-pkg-name">Zakovat 27.07.2026</span></span>
         </div>
-        <div class="flex items-center gap-3">
-            <button id="btn-mode-editor" onclick="switchView('editor')" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition flex items-center gap-2"><i class="fa-solid fa-pen-to-square"></i> Tahrirlash</button>
-            <button id="btn-mode-pres" onclick="switchView('presentation')" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2"><i class="fa-solid fa-play"></i> Prezentatsiya</button>
-            <button onclick="toggleFullscreen()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition"><i class="fa-solid fa-expand"></i></button>
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button id="btn-mode-editor" onclick="switchView('editor')" class="px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition flex items-center gap-1 sm:gap-2"><i class="fa-solid fa-pen-to-square"></i> <span class="hidden xs:inline">Tahrirlash</span></button>
+            <button id="btn-mode-pres" onclick="switchView('presentation')" class="px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-1 sm:gap-2"><i class="fa-solid fa-play"></i> <span class="hidden xs:inline">Prezentatsiya</span></button>
+            <button onclick="toggleFullscreen()" class="p-1.5 sm:p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition"><i class="fa-solid fa-expand text-xs sm:text-sm"></i></button>
         </div>
     </header>
 
     <!-- Main -->
     <main class="flex-1 relative overflow-hidden flex flex-col">
         <!-- Editor View -->
-        <section id="view-editor" class="flex-1 p-6 overflow-y-auto bg-slate-950 flex flex-col gap-6">
-            <div class="max-w-6xl mx-auto w-full flex flex-col gap-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-3"><div class="flex items-center gap-3 text-red-400 font-semibold"><i class="fa-solid fa-file-pdf text-2xl"></i><span>PDF</span></div><p class="text-xs text-slate-400">PDF dan matn ajratib olish</p><input type="file" id="pdf-file-input" accept=".pdf" class="hidden" onchange="handlePdfUpload(event)"><button onclick="document.getElementById('pdf-file-input').click()" class="mt-2 w-full py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center justify-center gap-2"><i class="fa-solid fa-upload"></i> Yuklash</button></div>
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-3"><div class="flex items-center gap-3 text-emerald-400 font-semibold"><i class="fa-solid fa-paste text-2xl"></i><span>Matn</span></div><p class="text-xs text-slate-400">Format: 1-savol:, Javob:, Izoh:</p><button onclick="openPasteModal()" class="mt-2 w-full py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center justify-center gap-2"><i class="fa-solid fa-code"></i> Qo'yish</button></div>
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-3"><div class="flex items-center gap-3 text-amber-400 font-semibold"><i class="fa-solid fa-lightbulb text-2xl"></i><span>Namuna</span></div><p class="text-xs text-slate-400">Tayyor savollar to'plami</p><button onclick="loadDemoPackage()" class="mt-2 w-full py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 text-xs font-medium rounded-lg border border-amber-500/30 transition flex items-center justify-center gap-2"><i class="fa-solid fa-wand-magic-sparkles"></i> Yuklash</button></div>
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-3"><div class="flex items-center gap-3 text-cyan-400 font-semibold"><i class="fa-solid fa-server text-2xl"></i><span>Server</span></div><p class="text-xs text-slate-400">Paketlarni serverda saqlash</p><button onclick="savePackageToServer()" class="mt-2 w-full py-2 bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 text-xs font-medium rounded-lg border border-cyan-500/30 transition flex items-center justify-center gap-2"><i class="fa-solid fa-cloud-upload-alt"></i> Saqlash</button></div>
+        <section id="view-editor" class="flex-1 p-3 sm:p-6 overflow-y-auto bg-slate-950 flex flex-col gap-4 sm:gap-6">
+            <div class="max-w-6xl mx-auto w-full flex flex-col gap-4 sm:gap-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-col gap-2 sm:gap-3"><div class="flex items-center gap-2 sm:gap-3 text-red-400 font-semibold text-sm sm:text-base"><i class="fa-solid fa-file-pdf text-xl sm:text-2xl"></i><span>PDF</span></div><p class="text-[10px] sm:text-xs text-slate-400">PDF dan matn ajratib olish</p><input type="file" id="pdf-file-input" accept=".pdf" class="hidden" onchange="handlePdfUpload(event)"><button onclick="document.getElementById('pdf-file-input').click()" class="mt-1 sm:mt-2 w-full py-1.5 sm:py-2 bg-slate-800 hover:bg-slate-700 text-[10px] sm:text-xs font-medium rounded-lg border border-slate-700 transition flex items-center justify-center gap-2"><i class="fa-solid fa-upload"></i> Yuklash</button></div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-col gap-2 sm:gap-3"><div class="flex items-center gap-2 sm:gap-3 text-emerald-400 font-semibold text-sm sm:text-base"><i class="fa-solid fa-paste text-xl sm:text-2xl"></i><span>Matn</span></div><p class="text-[10px] sm:text-xs text-slate-400">Format: 1-savol:, Javob:, Izoh:</p><button onclick="openPasteModal()" class="mt-1 sm:mt-2 w-full py-1.5 sm:py-2 bg-slate-800 hover:bg-slate-700 text-[10px] sm:text-xs font-medium rounded-lg border border-slate-700 transition flex items-center justify-center gap-2"><i class="fa-solid fa-code"></i> Qo'yish</button></div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-col gap-2 sm:gap-3"><div class="flex items-center gap-2 sm:gap-3 text-amber-400 font-semibold text-sm sm:text-base"><i class="fa-solid fa-lightbulb text-xl sm:text-2xl"></i><span>Namuna</span></div><p class="text-[10px] sm:text-xs text-slate-400">Tayyor savollar to'plami</p><button onclick="loadDemoPackage()" class="mt-1 sm:mt-2 w-full py-1.5 sm:py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 text-[10px] sm:text-xs font-medium rounded-lg border border-amber-500/30 transition flex items-center justify-center gap-2"><i class="fa-solid fa-wand-magic-sparkles"></i> Yuklash</button></div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-col gap-2 sm:gap-3"><div class="flex items-center gap-2 sm:gap-3 text-cyan-400 font-semibold text-sm sm:text-base"><i class="fa-solid fa-server text-xl sm:text-2xl"></i><span>Server</span></div><p class="text-[10px] sm:text-xs text-slate-400">Paketlarni serverda saqlash</p><button onclick="savePackageToServer()" class="mt-1 sm:mt-2 w-full py-1.5 sm:py-2 bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 text-[10px] sm:text-xs font-medium rounded-lg border border-cyan-500/30 transition flex items-center justify-center gap-2"><i class="fa-solid fa-cloud-upload-alt"></i> Saqlash</button></div>
                 </div>
 
                 <!-- Server paketlari ro‘yxati -->
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-list-ul mr-2"></i>Serverdagi paketlar</h4>
-                        <button onclick="loadPackagesList()" class="text-xs text-slate-500 hover:text-white"><i class="fa-solid fa-rotate-right mr-1"></i>Yangilash</button>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4">
+                    <div class="flex items-center justify-between mb-2 sm:mb-3">
+                        <h4 class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-list-ul mr-2"></i>Serverdagi paketlar</h4>
+                        <button onclick="loadPackagesList()" class="text-[10px] sm:text-xs text-slate-500 hover:text-white"><i class="fa-solid fa-rotate-right mr-1"></i>Yangilash</button>
                     </div>
-                    <div id="server-packages-list" class="flex flex-col gap-1 max-h-40 overflow-y-auto text-xs">
+                    <div id="server-packages-list" class="flex flex-col gap-1 max-h-40 sm:max-h-60 overflow-y-auto text-xs">
                         <div class="text-slate-500 text-center py-2">Yuklanmoqda...</div>
                     </div>
                 </div>
 
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex items-center gap-3 flex-1 min-w-[250px]"><label class="text-xs text-slate-400 font-medium">Paket nomi:</label><input type="text" id="package-title-input" value="Zakovat 27.07.2026" oninput="updatePackageTitle(this.value)" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-indigo-500 flex-1"></div>
-                    <div class="flex items-center gap-3"><span id="questions-count-badge" class="text-xs bg-indigo-950 text-indigo-300 border border-indigo-800 px-3 py-1.5 rounded-lg font-semibold">0 ta savol</span><button onclick="addNewQuestion()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Yangi Savol</button><button onclick="exportPackageJSON()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 transition"><i class="fa-solid fa-download"></i> JSON</button><button onclick="exportToPPTX()" class="px-3 py-1.5 bg-emerald-800 hover:bg-emerald-700 text-emerald-200 text-xs font-semibold rounded-lg border border-emerald-700 transition flex items-center gap-1.5"><i class="fa-solid fa-file-powerpoint"></i> PPTX</button></div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+                    <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-[180px] sm:min-w-[250px]"><label class="text-[10px] sm:text-xs text-slate-400 font-medium">Paket nomi:</label><input type="text" id="package-title-input" value="Zakovat 27.07.2026" oninput="updatePackageTitle(this.value)" class="bg-slate-950 border border-slate-700 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500 flex-1"></div>
+                    <div class="flex items-center gap-2 sm:gap-3 flex-wrap"><span id="questions-count-badge" class="text-[10px] sm:text-xs bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg font-semibold">0 ta savol</span><button onclick="addNewQuestion()" class="px-2 sm:px-4 py-1 sm:py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] sm:text-xs font-semibold rounded-lg shadow transition flex items-center gap-1 sm:gap-1.5"><i class="fa-solid fa-plus"></i> Yangi</button><button onclick="exportPackageJSON()" class="px-2 sm:px-3 py-1 sm:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] sm:text-xs font-semibold rounded-lg border border-slate-700 transition"><i class="fa-solid fa-download"></i> JSON</button><button onclick="exportToPPTX()" class="px-2 sm:px-3 py-1 sm:py-1.5 bg-emerald-800 hover:bg-emerald-700 text-emerald-200 text-[10px] sm:text-xs font-semibold rounded-lg border border-emerald-700 transition flex items-center gap-1 sm:gap-1.5"><i class="fa-solid fa-file-powerpoint"></i> PPTX</button></div>
                 </div>
-                <div class="flex flex-col gap-4"><h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between"><span>Savollar Ro'yxati</span><span class="text-xs font-normal text-slate-500">Tahrirlash</span></h3><div id="questions-list-container" class="flex flex-col gap-4"></div></div>
+                <div class="flex flex-col gap-3 sm:gap-4"><h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between"><span>Savollar Ro'yxati</span><span class="text-[10px] sm:text-xs font-normal text-slate-500">Tahrirlash</span></h3><div id="questions-list-container" class="flex flex-col gap-3 sm:gap-4"></div></div>
             </div>
         </section>
 
         <!-- Presentation View -->
         <section id="view-presentation" class="hidden flex-1 pres-bg flex flex-col justify-between relative overflow-hidden">
             <!-- Header -->
-            <div class="pres-header px-8 py-5 border-b border-slate-900 flex items-center justify-between text-xs tracking-wide text-slate-400 z-10">
-                <div class="flex items-center gap-4">
-                    <span class="font-bold uppercase tracking-widest text-indigo-400 flex items-center gap-2"><i class="fa-solid fa-trophy text-indigo-500"></i> <span id="pres-pkg-name">ZAKOVAT</span></span>
+            <div class="pres-header px-4 sm:px-8 py-2 sm:py-5 border-b border-slate-900 flex flex-wrap items-center justify-between text-[10px] sm:text-xs tracking-wide text-slate-400 z-10 gap-2">
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <span class="font-bold uppercase tracking-widest text-indigo-400 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"><i class="fa-solid fa-trophy text-indigo-500"></i> <span id="pres-pkg-name" class="truncate max-w-[120px] sm:max-w-xs">ZAKOVAT</span></span>
                 </div>
-                <div id="header-timer-box" class="flex items-center gap-3 bg-slate-900/80 border border-slate-800/80 px-4 py-1.5 rounded-full">
-                    <div class="relative w-7 h-7 flex items-center justify-center">
+                <div id="header-timer-box" class="flex items-center gap-2 sm:gap-3 bg-slate-900/80 border border-slate-800/80 px-2 sm:px-4 py-1 sm:py-1.5 rounded-full">
+                    <div class="relative w-6 sm:w-7 h-6 sm:h-7 flex items-center justify-center">
                         <svg class="w-full h-full">
                             <circle cx="14" cy="14" r="11" stroke="#1e293b" stroke-width="3" fill="none"/>
                             <circle id="timer-progress-circle" class="timer-ring-circle" cx="14" cy="14" r="11" stroke="#6366f1" stroke-width="3" fill="none" stroke-dasharray="69.115" stroke-dashoffset="0"/>
                         </svg>
                     </div>
-                    <span id="timer-text" class="font-mono text-base font-bold text-white w-7 text-center">60</span>
-                    <div class="flex items-center gap-1 border-l border-slate-700 pl-2">
-                        <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-6 h-6 rounded hover:bg-slate-800 text-indigo-400 flex items-center justify-center transition"><i class="fa-solid fa-play text-xs"></i></button>
-                        <button onclick="resetTimer()" class="w-6 h-6 rounded hover:bg-slate-800 text-slate-400 flex items-center justify-center transition"><i class="fa-solid fa-rotate-left text-xs"></i></button>
-                        <button onclick="addExtraTime(10)" class="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold">+10s</button>
+                    <span id="timer-text" class="font-mono text-sm sm:text-base font-bold text-white w-6 sm:w-7 text-center">60</span>
+                    <div class="flex items-center gap-0.5 sm:gap-1 border-l border-slate-700 pl-1 sm:pl-2">
+                        <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-5 sm:w-6 h-5 sm:h-6 rounded hover:bg-slate-800 text-indigo-400 flex items-center justify-center transition"><i class="fa-solid fa-play text-[10px] sm:text-xs"></i></button>
+                        <button onclick="resetTimer()" class="w-5 sm:w-6 h-5 sm:h-6 rounded hover:bg-slate-800 text-slate-400 flex items-center justify-center transition"><i class="fa-solid fa-rotate-left text-[10px] sm:text-xs"></i></button>
+                        <button onclick="addExtraTime(10)" class="px-1 sm:px-1.5 py-0.5 rounded text-[8px] sm:text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold">+10s</button>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <span id="pres-status-badge" class="px-2.5 py-1 rounded bg-slate-900 text-slate-300 text-[11px] font-medium border border-slate-800">Savol bosqichi</span>
-                    <span id="pres-counter" class="font-semibold text-slate-300">S1/1</span>
-                    <button onclick="toggleAudioMute()" id="btn-audio-mute" class="text-slate-400 hover:text-white transition px-1"><i class="fa-solid fa-volume-high"></i></button>
+                <div class="flex items-center gap-1 sm:gap-3">
+                    <span id="pres-status-badge" class="px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded bg-slate-900 text-slate-300 text-[9px] sm:text-[11px] font-medium border border-slate-800">Savol</span>
+                    <span id="pres-counter" class="font-semibold text-slate-300 text-[10px] sm:text-sm">S1/1</span>
+                    <button onclick="toggleAudioMute()" id="btn-audio-mute" class="text-slate-400 hover:text-white transition px-0.5 sm:px-1"><i class="fa-solid fa-volume-high text-xs sm:text-sm"></i></button>
                 </div>
             </div>
 
             <!-- Content area -->
-            <div class="flex-1 px-12 md:px-20 py-8 flex flex-col justify-center max-w-7xl mx-auto w-full z-10 overflow-y-auto">
+            <div class="flex-1 px-4 sm:px-12 md:px-20 py-4 sm:py-8 flex flex-col justify-center max-w-7xl mx-auto w-full z-10 overflow-y-auto">
                 <div id="pres-content-wrapper" class="fade-in flex flex-col justify-between h-full">
                     <div>
-                        <div id="pres-q-num" class="text-sm font-semibold text-slate-400 tracking-wider mb-4 uppercase">Q1</div>
-                        <div id="pres-q-text" class="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white leading-snug md:leading-tight tracking-tight mb-6"></div>
+                        <div id="pres-q-num" class="text-[10px] sm:text-sm font-semibold text-slate-400 tracking-wider mb-2 sm:mb-4 uppercase">Q1</div>
+                        <div id="pres-q-text" class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white leading-snug md:leading-tight tracking-tight mb-4 sm:mb-6"></div>
                     </div>
-                    <div id="pres-answer-container" class="hidden mt-auto pt-6 border-t border-slate-900/80 fade-in">
-                        <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Javob</div>
-                        <div id="pres-answer-text" class="text-xl md:text-2xl font-black text-indigo-400 mb-3"></div>
-                        <div id="pres-izoh-box" class="hidden text-sm md:text-base text-slate-400 leading-relaxed font-normal">
+                    <div id="pres-answer-container" class="hidden mt-auto pt-4 sm:pt-6 border-t border-slate-900/80 fade-in">
+                        <div class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Javob</div>
+                        <div id="pres-answer-text" class="text-lg sm:text-xl md:text-2xl font-black text-indigo-400 mb-2 sm:mb-3"></div>
+                        <div id="pres-izoh-box" class="hidden text-xs sm:text-sm md:text-base text-slate-400 leading-relaxed font-normal">
                             <span class="font-semibold text-slate-300">Izoh:</span> <span id="pres-izoh-text"></span>
                         </div>
                     </div>
@@ -177,19 +212,19 @@
             </div>
 
             <!-- Footer -->
-            <div class="pres-footer px-8 py-4 border-t border-slate-900 flex items-center text-xs text-slate-400 z-10 bg-slate-950/40"
+            <div class="pres-footer px-4 sm:px-8 py-2 sm:py-4 border-t border-slate-900 flex items-center text-[10px] sm:text-xs text-slate-400 z-10 bg-slate-950/40"
                  style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;">
                 <div class="hidden md:block text-slate-500 font-medium" style="justify-self: start;">
-                    <span class="bg-slate-900 border border-slate-800 px-2 py-1 rounded text-[11px] mr-1">Space / →</span> Keyingi
-                    <span class="bg-slate-900 border border-slate-800 px-2 py-1 rounded text-[11px] ml-3 mr-1">←</span> Oldingi
-                    <span class="bg-slate-900 border border-slate-800 px-2 py-1 rounded text-[11px] ml-3 mr-1">T</span> Taymer
+                    <span class="bg-slate-900 border border-slate-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[11px] mr-1">Space / →</span> Keyingi
+                    <span class="bg-slate-900 border border-slate-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[11px] ml-2 sm:ml-3 mr-1">←</span> Oldingi
+                    <span class="bg-slate-900 border border-slate-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[11px] ml-2 sm:ml-3 mr-1">T</span> Taymer
                 </div>
-                <div class="flex items-center gap-3" style="justify-self: center;">
-                    <button onclick="prevStep()" class="w-10 h-10 rounded-xl bg-slate-900/90 border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition">
-                        <i class="fa-solid fa-chevron-left text-sm"></i>
+                <div class="flex items-center gap-2 sm:gap-3" style="justify-self: center;">
+                    <button onclick="prevStep()" class="w-8 sm:w-10 h-8 sm:h-10 rounded-xl bg-slate-900/90 border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition">
+                        <i class="fa-solid fa-chevron-left text-xs sm:text-sm"></i>
                     </button>
-                    <button onclick="nextStep()" class="w-10 h-10 rounded-xl bg-indigo-600/90 border border-indigo-500/50 hover:bg-indigo-500 text-white flex items-center justify-center transition">
-                        <i class="fa-solid fa-chevron-right text-sm"></i>
+                    <button onclick="nextStep()" class="w-8 sm:w-10 h-8 sm:h-10 rounded-xl bg-indigo-600/90 border border-indigo-500/50 hover:bg-indigo-500 text-white flex items-center justify-center transition">
+                        <i class="fa-solid fa-chevron-right text-xs sm:text-sm"></i>
                     </button>
                 </div>
                 <div class="hidden md:block text-right font-medium" style="justify-self: end;">
@@ -201,16 +236,16 @@
 
     <!-- Paste Modal -->
     <div id="paste-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-2xl w-full flex flex-col gap-4 shadow-2xl">
-            <div class="flex items-center justify-between"><h3 class="text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-paste text-indigo-400"></i> Matnni Qo'yish</h3><button onclick="closePasteModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button></div>
-            <textarea id="paste-input-text" rows="10" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500"></textarea>
-            <div class="flex justify-end gap-3"><button onclick="closePasteModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg text-slate-300">Bekor qilish</button><button onclick="processPastedText()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold rounded-lg text-white shadow-lg shadow-indigo-600/30">Tahlil qilish</button></div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 max-w-2xl w-full flex flex-col gap-4 shadow-2xl">
+            <div class="flex items-center justify-between"><h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2"><i class="fa-solid fa-paste text-indigo-400"></i> Matnni Qo'yish</h3><button onclick="closePasteModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button></div>
+            <textarea id="paste-input-text" rows="10" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 sm:p-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500"></textarea>
+            <div class="flex justify-end gap-3"><button onclick="closePasteModal()" class="px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg text-slate-300">Bekor qilish</button><button onclick="processPastedText()" class="px-4 sm:px-5 py-1.5 sm:py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold rounded-lg text-white shadow-lg shadow-indigo-600/30">Tahlil qilish</button></div>
         </div>
     </div>
 
     <script>
         // =========== API ===========
-        const API_BASE = '/api';   // Vercel’da backend shu manzilda
+        const API_BASE = '/api';
 
         // =========== STATE ===========
         let appState = { view: 'editor', packageName: 'Zakovat 27.07.2026', questions: [], currentQuestionIndex: 0, presentationStep: 0, audioMuted: false };
@@ -233,13 +268,13 @@
             document.getElementById('view-presentation').classList.toggle('hidden', v!=='presentation');
             let ed = document.getElementById('btn-mode-editor'), pr = document.getElementById('btn-mode-pres');
             if(v==='editor') {
-                ed.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition flex items-center gap-2';
-                pr.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2';
+                ed.className = 'px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition flex items-center gap-1 sm:gap-2';
+                pr.className = 'px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-1 sm:gap-2';
                 pauseTimer();
             } else {
                 if(appState.questions.length===0) { alert("Kamida 1 ta savol qo'shing."); return; }
-                ed.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-2';
-                pr.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition flex items-center gap-2';
+                ed.className = 'px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-1 sm:gap-2';
+                pr.className = 'px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition flex items-center gap-1 sm:gap-2';
                 appState.currentQuestionIndex=0; appState.presentationStep=0; renderPresentationSlide();
             }
         }
@@ -257,12 +292,12 @@
                     return;
                 }
                 container.innerHTML = data.map(p => `
-                    <div class="server-pkg-item flex items-center justify-between px-3 py-2 rounded-lg bg-slate-800/30 hover:bg-slate-800/60 border border-slate-700/30">
-                        <span class="text-slate-200 font-medium truncate max-w-[150px]" title="${p.name}">${p.name}</span>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] text-slate-400">${new Date(p.createdAt).toLocaleDateString()}</span>
-                            <button onclick="loadPackageFromServer('${p.id}')" class="px-2 py-1 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 rounded text-[10px] font-medium"><i class="fa-solid fa-download"></i></button>
-                            <button onclick="deletePackageFromServer('${p.id}')" class="px-2 py-1 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded text-[10px] font-medium"><i class="fa-solid fa-trash-can"></i></button>
+                    <div class="server-pkg-item flex flex-wrap items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-slate-800/30 hover:bg-slate-800/60 border border-slate-700/30 gap-1">
+                        <span class="text-slate-200 font-medium text-xs sm:text-sm break-words flex-1 min-w-[100px]">${p.name}</span>
+                        <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                            <span class="text-[8px] sm:text-[10px] text-slate-400 whitespace-nowrap">${new Date(p.createdAt).toLocaleDateString()}</span>
+                            <button onclick="loadPackageFromServer('${p.id}')" class="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 rounded text-[8px] sm:text-[10px] font-medium"><i class="fa-solid fa-download"></i></button>
+                            <button onclick="deletePackageFromServer('${p.id}')" class="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-red-600/20 hover:bg-red-600/40 text-red-300 rounded text-[8px] sm:text-[10px] font-medium"><i class="fa-solid fa-trash-can"></i></button>
                         </div>
                     </div>
                 `).join('');
@@ -566,22 +601,22 @@
             const container = document.getElementById('questions-list-container');
             document.getElementById('questions-count-badge').innerText = `${appState.questions.length} ta savol`;
             if (appState.questions.length === 0) {
-                container.innerHTML = `<div class="bg-slate-900 border border-dashed border-slate-800 rounded-xl p-8 text-center text-slate-500 text-xs">Savollar yo'q.</div>`;
+                container.innerHTML = `<div class="bg-slate-900 border border-dashed border-slate-800 rounded-xl p-4 sm:p-8 text-center text-slate-500 text-[10px] sm:text-xs">Savollar yo'q.</div>`;
                 return;
             }
             container.innerHTML = appState.questions.map((q,idx)=>`
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
-                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
-                        <div class="flex items-center gap-3">
-                            <span class="w-6 h-6 rounded-full bg-indigo-950 text-indigo-400 border border-indigo-800 flex items-center justify-center font-bold text-xs">${idx+1}</span>
-                            <input type="text" value="${q.numStr}" onchange="updateQuestionField(${idx},'numStr',this.value)" class="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs font-semibold text-slate-300 w-28 focus:outline-none focus:border-indigo-500">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-col gap-3 sm:gap-4">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 sm:pb-3">
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <span class="w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-indigo-950 text-indigo-400 border border-indigo-800 flex items-center justify-center font-bold text-[10px] sm:text-xs">${idx+1}</span>
+                            <input type="text" value="${q.numStr}" onchange="updateQuestionField(${idx},'numStr',this.value)" class="bg-slate-950 border border-slate-800 rounded px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold text-slate-300 w-20 sm:w-28 focus:outline-none focus:border-indigo-500">
                         </div>
-                        <button onclick="deleteQuestion(${idx})" class="text-slate-500 hover:text-red-400 text-xs"><i class="fa-solid fa-trash-can"></i></button>
+                        <button onclick="deleteQuestion(${idx})" class="text-slate-500 hover:text-red-400 text-[10px] sm:text-xs"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
-                    <div><label class="text-[11px] font-semibold text-slate-400">Savol matni:</label><textarea onchange="updateQuestionField(${idx},'question',this.value)" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-indigo-500">${q.question||''}</textarea></div>
-                    <div class="grid grid-cols-1 gap-4">
-                        <div><label class="text-[11px] font-semibold text-emerald-400">Javob:</label><textarea onchange="updateQuestionField(${idx},'answer',this.value)" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-emerald-300">${q.answer||''}</textarea></div>
-                        <div><label class="text-[11px] font-semibold text-slate-400">Izoh:</label><textarea onchange="updateQuestionField(${idx},'izoh',this.value)" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-300">${q.izoh||''}</textarea></div>
+                    <div><label class="text-[9px] sm:text-[11px] font-semibold text-slate-400">Savol matni:</label><textarea onchange="updateQuestionField(${idx},'question',this.value)" rows="3 sm:rows-4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 sm:p-3 text-[10px] sm:text-xs text-white focus:outline-none focus:border-indigo-500">${q.question||''}</textarea></div>
+                    <div class="grid grid-cols-1 gap-3 sm:gap-4">
+                        <div><label class="text-[9px] sm:text-[11px] font-semibold text-emerald-400">Javob:</label><textarea onchange="updateQuestionField(${idx},'answer',this.value)" rows="2 sm:rows-3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-1.5 sm:p-2 text-[10px] sm:text-xs text-emerald-300">${q.answer||''}</textarea></div>
+                        <div><label class="text-[9px] sm:text-[11px] font-semibold text-slate-400">Izoh:</label><textarea onchange="updateQuestionField(${idx},'izoh',this.value)" rows="1 sm:rows-2" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-1.5 sm:p-2 text-[10px] sm:text-xs text-slate-300">${q.izoh||''}</textarea></div>
                     </div>
                 </div>
             `).join('');
@@ -629,7 +664,7 @@
                 }
             };
             reader.readAsText(file);
-            event.target.value = ''; // reset
+            event.target.value = '';
         }
 
         // Presentation
@@ -673,7 +708,7 @@
             const offset = circumference - (rem / dur) * circumference;
             document.getElementById('timer-progress-circle').style.strokeDashoffset = offset;
             document.getElementById('timer-progress-circle').setAttribute('stroke', rem<=10?'#ef4444':'#6366f1');
-            document.getElementById('timer-text').className = `font-mono text-base font-bold w-7 text-center ${rem<=10?'text-red-400':'text-white'}`;
+            document.getElementById('timer-text').className = `font-mono text-sm sm:text-base font-bold w-6 sm:w-7 text-center ${rem<=10?'text-red-400':'text-white'}`;
         }
 
         function toggleAudioMute() { appState.audioMuted=!appState.audioMuted; document.getElementById('btn-audio-mute').innerHTML=appState.audioMuted?'<i class="fa-solid fa-volume-xmark text-slate-600"></i>':'<i class="fa-solid fa-volume-high"></i>'; }
