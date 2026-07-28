@@ -31,12 +31,21 @@
         .server-pkg-item { transition: background 0.2s; cursor: pointer; }
         .server-pkg-item:hover { background: #1e293b; }
 
-        /* Fullscreen – faqat matn va tugmalar kichrayadi, timer ring o‘lchami o‘zgarmaydi */
+        /* Fullscreen – timer ring o‘lchami o‘zgarmasligi uchun */
+        #view-presentation.fullscreen-active #header-timer-box .relative.w-7 {
+            width: 1.75rem !important;
+            height: 1.75rem !important;
+            min-width: 1.75rem !important;
+            min-height: 1.75rem !important;
+        }
+        #view-presentation.fullscreen-active #header-timer-box {
+            overflow: visible !important;
+        }
         #view-presentation.fullscreen-active .pres-header {
             padding-top: 0.25rem !important;
             padding-bottom: 0.25rem !important;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
             font-size: 0.7rem !important;
             line-height: 1.2 !important;
         }
@@ -141,7 +150,7 @@
         <section id="view-editor" class="flex-1 p-3 sm:p-6 overflow-y-auto bg-slate-950 flex flex-col gap-4 sm:gap-6">
             <div class="max-w-6xl mx-auto w-full flex flex-col gap-4 sm:gap-6">
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-col gap-2 sm:gap-3"><div class="flex items-center gap-2 sm:gap-3 text-red-400 font-semibold text-sm sm:text-base"><i class="fa-solid fa-file-pdf text-xl sm:text-2xl"></i><span>PDF</span></div><p class="text-[10px] sm:text-xs text-slate-400">PDF dan matn ajratib olish</p><input type="file" id="pdf-file-input" accept=".pdf" class="hidden" onchange="handlePdfUpload(event)"><button onclick="document.getElementById('pdf-file-input').click()" class="mt-1 sm:mt-2 w-full py-1.5 sm:py-2 bg-slate-800 hover:bg-slate-700 text-[10px] sm:text-xs font-medium rounded-lg border border-slate-700 transition flex items-center justify-center gap-2"><i class="fa-solid fa-upload"></i> Yuklash</button></div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-col gap-2 sm:gap-3"><div class="flex items-center gap-2 sm:gap-3 text-red-400 font-semibold text-sm sm:text-base"><i class="fa-solid fa-file-pdf text-xl sm:text-2xl"></i><span>PDF</span></div><p class="text-[10px] sm:text-xs text-slate-400">PDF dan matn ajratib olish</p><input type="file" id="pdf-file-input" accept=".pdf" multiple class="hidden" onchange="handlePdfUpload(event)"><button onclick="document.getElementById('pdf-file-input').click()" class="mt-1 sm:mt-2 w-full py-1.5 sm:py-2 bg-slate-800 hover:bg-slate-700 text-[10px] sm:text-xs font-medium rounded-lg border border-slate-700 transition flex items-center justify-center gap-2"><i class="fa-solid fa-upload"></i> Yuklash</button></div>
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-col gap-2 sm:gap-3"><div class="flex items-center gap-2 sm:gap-3 text-emerald-400 font-semibold text-sm sm:text-base"><i class="fa-solid fa-paste text-xl sm:text-2xl"></i><span>Matn</span></div><p class="text-[10px] sm:text-xs text-slate-400">Format: 1-savol:, Javob:, Izoh:</p><button onclick="openPasteModal()" class="mt-1 sm:mt-2 w-full py-1.5 sm:py-2 bg-slate-800 hover:bg-slate-700 text-[10px] sm:text-xs font-medium rounded-lg border border-slate-700 transition flex items-center justify-center gap-2"><i class="fa-solid fa-code"></i> Qo'yish</button></div>
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-col gap-2 sm:gap-3"><div class="flex items-center gap-2 sm:gap-3 text-amber-400 font-semibold text-sm sm:text-base"><i class="fa-solid fa-lightbulb text-xl sm:text-2xl"></i><span>Namuna</span></div><p class="text-[10px] sm:text-xs text-slate-400">Tayyor savollar to'plami</p><button onclick="loadDemoPackage()" class="mt-1 sm:mt-2 w-full py-1.5 sm:py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 text-[10px] sm:text-xs font-medium rounded-lg border border-amber-500/30 transition flex items-center justify-center gap-2"><i class="fa-solid fa-wand-magic-sparkles"></i> Yuklash</button></div>
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-col gap-2 sm:gap-3"><div class="flex items-center gap-2 sm:gap-3 text-cyan-400 font-semibold text-sm sm:text-base"><i class="fa-solid fa-server text-xl sm:text-2xl"></i><span>Server</span></div><p class="text-[10px] sm:text-xs text-slate-400">Paketlarni serverda saqlash</p><button onclick="savePackageToServer()" class="mt-1 sm:mt-2 w-full py-1.5 sm:py-2 bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 text-[10px] sm:text-xs font-medium rounded-lg border border-cyan-500/30 transition flex items-center justify-center gap-2"><i class="fa-solid fa-cloud-upload-alt"></i> Saqlash</button></div>
@@ -173,9 +182,9 @@
                 <div class="flex items-center gap-2 sm:gap-4">
                     <span class="font-bold uppercase tracking-widest text-indigo-400 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"><i class="fa-solid fa-trophy text-indigo-500"></i> <span id="pres-pkg-name" class="truncate max-w-[120px] sm:max-w-xs">ZAKOVAT</span></span>
                 </div>
-                <div id="header-timer-box" class="flex items-center gap-2 sm:gap-3 bg-slate-900/80 border border-slate-800/80 px-2 sm:px-4 py-1 sm:py-1.5 rounded-full">
-                    <div class="relative w-6 sm:w-7 h-6 sm:h-7 flex items-center justify-center">
-                        <svg class="w-full h-full">
+                <div id="header-timer-box" class="flex items-center gap-2 sm:gap-3 bg-slate-900/80 border border-slate-800/80 px-2 sm:px-4 py-1 sm:py-1.5 rounded-full overflow-visible">
+                    <div class="relative w-6 sm:w-7 h-6 sm:h-7 flex items-center justify-center overflow-visible">
+                        <svg class="w-full h-full" viewBox="0 0 28 28">
                             <circle cx="14" cy="14" r="11" stroke="#1e293b" stroke-width="3" fill="none"/>
                             <circle id="timer-progress-circle" class="timer-ring-circle" cx="14" cy="14" r="11" stroke="#6366f1" stroke-width="3" fill="none" stroke-dasharray="69.115" stroke-dashoffset="0"/>
                         </svg>
@@ -522,33 +531,60 @@
             return inter / Math.max(wa.size, wb.size);
         }
 
-        // ---------- PDF HANDLING ----------
+        // ---------- PDF HANDLING (ko‘p fayl qo‘llab-quvvatlanadi) ----------
         async function handlePdfUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            showLoading("PDF tahlil qilinmoqda...");
-            try {
-                const buffer = await file.arrayBuffer();
-                const rawText = await extractTextFromPdf(buffer);
-                const cleaned = cleanText(rawText);
-                const questions = parseZakovatText(cleaned);
-                if (questions.length > 0) {
-                    appState.questions = questions;
-                    appState.packageName = file.name.replace(/\.pdf$/i,'').replace(/[_-]/g,' ');
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+            
+            showLoading(`${files.length} ta PDF tahlil qilinmoqda...`);
+            let successCount = 0;
+            let lastPackage = null;
+            
+            for (let f = 0; f < files.length; f++) {
+                const file = files[f];
+                try {
+                    const buffer = await file.arrayBuffer();
+                    const rawText = await extractTextFromPdf(buffer);
+                    const cleaned = cleanText(rawText);
+                    const questions = parseZakovatText(cleaned);
+                    
+                    if (questions.length > 0) {
+                        const pkgName = file.name.replace(/\.pdf$/i,'').replace(/[_-]/g,' ').trim() || `Paket ${f+1}`;
+                        // Yangi paketni serverga saqlash
+                        const res = await fetch(`${API_BASE}/packages`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ packageName: pkgName, questions: questions })
+                        });
+                        const result = await res.json();
+                        if (res.ok) {
+                            successCount++;
+                            lastPackage = { name: pkgName, questions: questions };
+                        } else {
+                            console.warn(`"${pkgName}" saqlanmadi:`, result.error);
+                        }
+                    }
+                } catch (err) {
+                    console.error(`"${file.name}" xatolik:`, err);
+                }
+            }
+            
+            // Agar kamida bitta paket saqlansa, ro‘yxatni yangilaymiz va oxirgi paketni yuklaymiz
+            if (successCount > 0) {
+                await loadPackagesList();
+                if (lastPackage) {
+                    appState.packageName = lastPackage.name;
+                    appState.questions = lastPackage.questions;
                     document.getElementById('package-title-input').value = appState.packageName;
                     document.getElementById('current-pkg-name').innerText = appState.packageName;
                     renderEditorQuestions();
-                    alert(`${questions.length} ta savol ajratildi!`);
-                } else {
-                    lastDebugText = cleaned;
-                    document.getElementById('debug-text-editor').value = cleaned;
-                    document.getElementById('debug-modal').classList.remove('hidden');
-                    alert("Savollar topilmadi. Matn diagnostika oynasida ko'rsatildi.");
                 }
-            } catch (err) {
-                console.error(err);
-                alert("PDF o'qishda xatolik: " + err.message);
-            } finally { hideLoading(); }
+                alert(`${successCount} ta paket muvaffaqiyatli yuklandi va saqlandi!`);
+            } else {
+                alert("Hech qanday paket yuklanmadi. Matn tarkibida savollar topilmadi.");
+            }
+            hideLoading();
+            e.target.value = ''; // reset input
         }
 
         function closeDebugModal() { document.getElementById('debug-modal').classList.add('hidden'); }
