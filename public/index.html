@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background-color: #0b0e14; color: #e2e8f0; user-select: none; margin: 0; padding: 0; height: 100vh; overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background-color: #0b0e14; color: #e2e8f0; margin: 0; padding: 0; height: 100vh; overflow: hidden; }
         .pres-bg { background-color: #050811; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -30,6 +30,39 @@
 
         .server-pkg-item { transition: background 0.2s; cursor: pointer; }
         .server-pkg-item:hover { background: #1e293b; }
+
+        /* Container */
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 1rem;
+        }
+
+        /* Floating fullscreen button */
+        .floating-fullscreen {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 50;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            background: #1e293b;
+            border: 2px solid #475569;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .floating-fullscreen:hover {
+            background: #334155;
+            transform: scale(1.05);
+        }
 
         /* Fullscreen – timer ring o‘lchami o‘zgarmasligi uchun */
         #view-presentation.fullscreen-active #header-timer-box .relative.w-7 {
@@ -63,31 +96,34 @@
             font-size: 0.65rem !important;
         }
         #view-presentation.fullscreen-active .pres-footer button {
-            width: 2rem !important;
-            height: 2rem !important;
-            border-radius: 0.5rem !important;
+            width: 2.5rem !important;
+            height: 2.5rem !important;
+            border-radius: 0.75rem !important;
         }
 
         /* Moslashuvchanlik */
         @media (max-width: 640px) {
+            .app-container { padding: 0 0.5rem; }
             #app-header { padding: 0.5rem 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
-            #app-header .flex:first-child { flex: 1 1 100%; justify-content: center; }
+            #app-header .flex:first-child { flex: 1 1 auto; }
+            #app-header .flex:last-child { flex: 1 1 100%; justify-content: flex-end; gap: 0.5rem; }
             #view-editor { padding: 0.75rem; }
             .pres-header { padding: 0.5rem 0.75rem !important; flex-wrap: wrap; gap: 0.5rem; }
             .pres-header #header-timer-box { padding: 0.25rem 0.5rem !important; }
             .pres-header .flex.items-center.gap-3:last-child { gap: 0.25rem; }
-            #pres-q-text { font-size: 1.5rem !important; }
+            #pres-q-text { font-size: 1.5rem !important; font-weight: 500 !important; }
             #pres-answer-text { font-size: 1.25rem !important; }
             #pres-content-wrapper { padding: 0.5rem 0; }
             .pres-footer { padding: 0.5rem 0.75rem !important; grid-template-columns: 1fr auto 1fr !important; }
-            .pres-footer button { width: 2.5rem !important; height: 2.5rem !important; }
+            .pres-footer button { width: 3rem !important; height: 3rem !important; }
             .pres-footer .hidden.md\\:block { display: none !important; }
             #view-editor .grid-cols-1.md\\:grid-cols-4 { grid-template-columns: 1fr 1fr; }
             #server-packages-list { max-height: 50vh; }
+            .floating-fullscreen { width: 3rem; height: 3rem; bottom: 1rem; right: 1rem; font-size: 1rem; }
         }
         @media (max-width: 480px) {
             #view-editor .grid-cols-1.md\\:grid-cols-4 { grid-template-columns: 1fr; }
-            #pres-q-text { font-size: 1.25rem !important; }
+            #pres-q-text { font-size: 1.25rem !important; font-weight: 500 !important; }
             #pres-answer-text { font-size: 1rem !important; }
             .pres-header .flex.items-center.gap-4 { gap: 0.25rem; }
             .pres-header #pres-pkg-name { font-size: 0.6rem; }
@@ -99,9 +135,78 @@
         @media (max-height: 500px) and (orientation: landscape) {
             .pres-header { padding: 0.25rem 0.75rem !important; }
             .pres-footer { padding: 0.25rem 0.75rem !important; }
-            #pres-q-text { font-size: 1.5rem !important; }
+            #pres-q-text { font-size: 1.5rem !important; font-weight: 500 !important; }
             #pres-answer-text { font-size: 1.2rem !important; }
             #view-presentation .flex-1.px-12 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        }
+
+        /* Tugmalar uslubi */
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover { background-color: #4338ca; }
+        .btn-secondary {
+            background-color: transparent;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .btn-secondary:hover { background-color: #1e293b; color: #e2e8f0; }
+
+        /* Input/textarea */
+        .input-field, .textarea-field {
+            background-color: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: #e2e8f0;
+            font-size: 0.875rem;
+            width: 100%;
+            transition: 0.2s;
+            outline: none;
+        }
+        .input-field:focus, .textarea-field:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79,70,229,0.2);
+        }
+        .label-text {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Presentation text */
+        .pres-question {
+            font-weight: 500;
+            line-height: 1.6;
+        }
+        .pres-answer {
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        .pres-nav-btn {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        @media (max-width: 640px) {
+            .pres-nav-btn { width: 3rem; height: 3rem; font-size: 1rem; }
         }
     </style>
 </head>
@@ -135,12 +240,11 @@
     <header id="app-header" class="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-2 sm:py-3 flex items-center justify-between z-20 flex-wrap gap-2">
         <div class="flex items-center gap-2 sm:gap-4">
             <div class="flex items-center gap-2"><div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30 text-sm sm:text-base">Z</div><span class="font-extrabold text-base sm:text-lg tracking-tight text-white">Zakovat<span class="text-indigo-400">Presenter</span></span></div>
-            <span id="package-title-display" class="text-[10px] sm:text-xs bg-slate-800 text-slate-300 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-slate-700 truncate max-w-[120px] sm:max-w-xs">Paket: <span id="current-pkg-name">Zakovat 27.07.2026</span></span>
         </div>
-        <div class="flex items-center gap-2 sm:gap-3">
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <span id="package-title-display" class="text-[10px] sm:text-xs bg-slate-800 text-slate-300 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-slate-700 truncate max-w-[120px] sm:max-w-xs">Paket: <span id="current-pkg-name">Zakovat 27.07.2026</span></span>
             <button id="btn-mode-editor" onclick="switchView('editor')" class="px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition flex items-center gap-1 sm:gap-2"><i class="fa-solid fa-pen-to-square"></i> <span class="hidden xs:inline">Tahrirlash</span></button>
             <button id="btn-mode-pres" onclick="switchView('presentation')" class="px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition flex items-center gap-1 sm:gap-2"><i class="fa-solid fa-play"></i> <span class="hidden xs:inline">Prezentatsiya</span></button>
-            <button onclick="toggleFullscreen()" class="p-1.5 sm:p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition"><i class="fa-solid fa-expand text-xs sm:text-sm"></i></button>
         </div>
     </header>
 
@@ -148,7 +252,7 @@
     <main class="flex-1 relative overflow-hidden flex flex-col">
         <!-- Editor View -->
         <section id="view-editor" class="flex-1 p-3 sm:p-6 overflow-y-auto bg-slate-950 flex flex-col gap-4 sm:gap-6">
-            <div class="max-w-6xl mx-auto w-full flex flex-col gap-4 sm:gap-6">
+            <div class="app-container flex flex-col gap-4 sm:gap-6">
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-col gap-2 sm:gap-3"><div class="flex items-center gap-2 sm:gap-3 text-red-400 font-semibold text-sm sm:text-base"><i class="fa-solid fa-file-pdf text-xl sm:text-2xl"></i><span>PDF</span></div><p class="text-[10px] sm:text-xs text-slate-400">PDF dan matn ajratib olish</p><input type="file" id="pdf-file-input" accept=".pdf" multiple class="hidden" onchange="handlePdfUpload(event)"><button onclick="document.getElementById('pdf-file-input').click()" class="mt-1 sm:mt-2 w-full py-1.5 sm:py-2 bg-slate-800 hover:bg-slate-700 text-[10px] sm:text-xs font-medium rounded-lg border border-slate-700 transition flex items-center justify-center gap-2"><i class="fa-solid fa-upload"></i> Yuklash</button></div>
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-col gap-2 sm:gap-3"><div class="flex items-center gap-2 sm:gap-3 text-emerald-400 font-semibold text-sm sm:text-base"><i class="fa-solid fa-paste text-xl sm:text-2xl"></i><span>Matn</span></div><p class="text-[10px] sm:text-xs text-slate-400">Format: 1-savol:, Javob:, Izoh:</p><button onclick="openPasteModal()" class="mt-1 sm:mt-2 w-full py-1.5 sm:py-2 bg-slate-800 hover:bg-slate-700 text-[10px] sm:text-xs font-medium rounded-lg border border-slate-700 transition flex items-center justify-center gap-2"><i class="fa-solid fa-code"></i> Qo'yish</button></div>
@@ -168,8 +272,13 @@
                 </div>
 
                 <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-5 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
-                    <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-[180px] sm:min-w-[250px]"><label class="text-[10px] sm:text-xs text-slate-400 font-medium">Paket nomi:</label><input type="text" id="package-title-input" value="Zakovat 27.07.2026" oninput="updatePackageTitle(this.value)" class="bg-slate-950 border border-slate-700 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500 flex-1"></div>
-                    <div class="flex items-center gap-2 sm:gap-3 flex-wrap"><span id="questions-count-badge" class="text-[10px] sm:text-xs bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg font-semibold">0 ta savol</span><button onclick="addNewQuestion()" class="px-2 sm:px-4 py-1 sm:py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] sm:text-xs font-semibold rounded-lg shadow transition flex items-center gap-1 sm:gap-1.5"><i class="fa-solid fa-plus"></i> Yangi</button><button onclick="exportPackageJSON()" class="px-2 sm:px-3 py-1 sm:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] sm:text-xs font-semibold rounded-lg border border-slate-700 transition"><i class="fa-solid fa-download"></i> JSON</button><button onclick="exportToPPTX()" class="px-2 sm:px-3 py-1 sm:py-1.5 bg-emerald-800 hover:bg-emerald-700 text-emerald-200 text-[10px] sm:text-xs font-semibold rounded-lg border border-emerald-700 transition flex items-center gap-1 sm:gap-1.5"><i class="fa-solid fa-file-powerpoint"></i> PPTX</button></div>
+                    <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-[180px] sm:min-w-[250px]"><label class="text-[10px] sm:text-xs text-slate-400 font-medium">Paket nomi:</label><input type="text" id="package-title-input" value="Zakovat 27.07.2026" oninput="updatePackageTitle(this.value)" class="input-field py-1 sm:py-1.5 text-xs sm:text-sm flex-1"></div>
+                    <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                        <span id="questions-count-badge" class="text-[10px] sm:text-xs bg-slate-800 text-slate-300 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-slate-700 font-medium">0 ta savol</span>
+                        <button onclick="addNewQuestion()" class="btn-primary text-[10px] sm:text-xs px-3 sm:px-4 py-1 sm:py-1.5"><i class="fa-solid fa-plus"></i> Yangi</button>
+                        <button onclick="exportPackageJSON()" class="btn-secondary text-[10px] sm:text-xs px-3 sm:px-4 py-1 sm:py-1.5"><i class="fa-solid fa-download"></i> JSON</button>
+                        <button onclick="exportToPPTX()" class="btn-secondary text-[10px] sm:text-xs px-3 sm:px-4 py-1 sm:py-1.5"><i class="fa-solid fa-file-powerpoint"></i> PPTX</button>
+                    </div>
                 </div>
                 <div class="flex flex-col gap-3 sm:gap-4"><h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between"><span>Savollar Ro'yxati</span><span class="text-[10px] sm:text-xs font-normal text-slate-500">Tahrirlash</span></h3><div id="questions-list-container" class="flex flex-col gap-3 sm:gap-4"></div></div>
             </div>
@@ -208,11 +317,11 @@
                 <div id="pres-content-wrapper" class="fade-in flex flex-col justify-between h-full">
                     <div>
                         <div id="pres-q-num" class="text-[10px] sm:text-sm font-semibold text-slate-400 tracking-wider mb-2 sm:mb-4 uppercase">Q1</div>
-                        <div id="pres-q-text" class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-white leading-snug md:leading-tight tracking-tight mb-4 sm:mb-6"></div>
+                        <div id="pres-q-text" class="pres-question text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white leading-snug md:leading-tight tracking-tight mb-4 sm:mb-6"></div>
                     </div>
                     <div id="pres-answer-container" class="hidden mt-auto pt-4 sm:pt-6 border-t border-slate-900/80 fade-in">
                         <div class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Javob</div>
-                        <div id="pres-answer-text" class="text-lg sm:text-xl md:text-2xl font-black text-indigo-400 mb-2 sm:mb-3"></div>
+                        <div id="pres-answer-text" class="pres-answer text-lg sm:text-xl md:text-2xl font-black text-indigo-400 mb-2 sm:mb-3"></div>
                         <div id="pres-izoh-box" class="hidden text-xs sm:text-sm md:text-base text-slate-400 leading-relaxed font-normal">
                             <span class="font-semibold text-slate-300">Izoh:</span> <span id="pres-izoh-text"></span>
                         </div>
@@ -228,12 +337,12 @@
                     <span class="bg-slate-900 border border-slate-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[11px] ml-2 sm:ml-3 mr-1">←</span> Oldingi
                     <span class="bg-slate-900 border border-slate-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] sm:text-[11px] ml-2 sm:ml-3 mr-1">T</span> Taymer
                 </div>
-                <div class="flex items-center gap-2 sm:gap-3" style="justify-self: center;">
-                    <button onclick="prevStep()" class="w-8 sm:w-10 h-8 sm:h-10 rounded-xl bg-slate-900/90 border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition">
-                        <i class="fa-solid fa-chevron-left text-xs sm:text-sm"></i>
+                <div class="flex items-center gap-3 sm:gap-4" style="justify-self: center;">
+                    <button onclick="prevStep()" class="pres-nav-btn bg-slate-900/90 border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white transition">
+                        <i class="fa-solid fa-chevron-left"></i>
                     </button>
-                    <button onclick="nextStep()" class="w-8 sm:w-10 h-8 sm:h-10 rounded-xl bg-indigo-600/90 border border-indigo-500/50 hover:bg-indigo-500 text-white flex items-center justify-center transition">
-                        <i class="fa-solid fa-chevron-right text-xs sm:text-sm"></i>
+                    <button onclick="nextStep()" class="pres-nav-btn bg-indigo-600/90 border border-indigo-500/50 hover:bg-indigo-500 text-white transition">
+                        <i class="fa-solid fa-chevron-right"></i>
                     </button>
                 </div>
                 <div class="hidden md:block text-right font-medium" style="justify-self: end;">
@@ -242,6 +351,11 @@
             </div>
         </section>
     </main>
+
+    <!-- Floating Fullscreen Button (faqat presentation view da ko‘rinadi) -->
+    <button id="floating-fullscreen-btn" class="floating-fullscreen hidden" onclick="toggleFullscreen()">
+        <i class="fa-solid fa-expand"></i>
+    </button>
 
     <!-- Paste Modal -->
     <div id="paste-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -275,6 +389,12 @@
             appState.view = v;
             document.getElementById('view-editor').classList.toggle('hidden', v!=='editor');
             document.getElementById('view-presentation').classList.toggle('hidden', v!=='presentation');
+            const floatingBtn = document.getElementById('floating-fullscreen-btn');
+            if (v === 'presentation') {
+                floatingBtn.classList.remove('hidden');
+            } else {
+                floatingBtn.classList.add('hidden');
+            }
             let ed = document.getElementById('btn-mode-editor'), pr = document.getElementById('btn-mode-pres');
             if(v==='editor') {
                 ed.className = 'px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition flex items-center gap-1 sm:gap-2';
@@ -645,14 +765,23 @@
                     <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 sm:pb-3">
                         <div class="flex items-center gap-2 sm:gap-3">
                             <span class="w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-indigo-950 text-indigo-400 border border-indigo-800 flex items-center justify-center font-bold text-[10px] sm:text-xs">${idx+1}</span>
-                            <input type="text" value="${q.numStr}" onchange="updateQuestionField(${idx},'numStr',this.value)" class="bg-slate-950 border border-slate-800 rounded px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold text-slate-300 w-20 sm:w-28 focus:outline-none focus:border-indigo-500">
+                            <input type="text" value="${q.numStr}" onchange="updateQuestionField(${idx},'numStr',this.value)" class="input-field py-0.5 sm:py-1 text-[10px] sm:text-xs w-20 sm:w-28">
                         </div>
                         <button onclick="deleteQuestion(${idx})" class="text-slate-500 hover:text-red-400 text-[10px] sm:text-xs"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
-                    <div><label class="text-[9px] sm:text-[11px] font-semibold text-slate-400">Savol matni:</label><textarea onchange="updateQuestionField(${idx},'question',this.value)" rows="3 sm:rows-4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 sm:p-3 text-[10px] sm:text-xs text-white focus:outline-none focus:border-indigo-500">${q.question||''}</textarea></div>
+                    <div>
+                        <label class="label-text">Savol matni:</label>
+                        <textarea onchange="updateQuestionField(${idx},'question',this.value)" rows="3" class="textarea-field text-[10px] sm:text-xs">${q.question||''}</textarea>
+                    </div>
                     <div class="grid grid-cols-1 gap-3 sm:gap-4">
-                        <div><label class="text-[9px] sm:text-[11px] font-semibold text-emerald-400">Javob:</label><textarea onchange="updateQuestionField(${idx},'answer',this.value)" rows="2 sm:rows-3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-1.5 sm:p-2 text-[10px] sm:text-xs text-emerald-300">${q.answer||''}</textarea></div>
-                        <div><label class="text-[9px] sm:text-[11px] font-semibold text-slate-400">Izoh:</label><textarea onchange="updateQuestionField(${idx},'izoh',this.value)" rows="1 sm:rows-2" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-1.5 sm:p-2 text-[10px] sm:text-xs text-slate-300">${q.izoh||''}</textarea></div>
+                        <div>
+                            <label class="label-text text-emerald-400">Javob:</label>
+                            <textarea onchange="updateQuestionField(${idx},'answer',this.value)" rows="2" class="textarea-field text-[10px] sm:text-xs text-emerald-300">${q.answer||''}</textarea>
+                        </div>
+                        <div>
+                            <label class="label-text">Izoh:</label>
+                            <textarea onchange="updateQuestionField(${idx},'izoh',this.value)" rows="1" class="textarea-field text-[10px] sm:text-xs text-slate-300">${q.izoh||''}</textarea>
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -749,7 +878,7 @@
 
         function toggleAudioMute() { appState.audioMuted=!appState.audioMuted; document.getElementById('btn-audio-mute').innerHTML=appState.audioMuted?'<i class="fa-solid fa-volume-xmark text-slate-600"></i>':'<i class="fa-solid fa-volume-high"></i>'; }
 
-        // Fullscreen
+        // Fullscreen – faqat floating tugma orqali
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(() => {});
@@ -761,12 +890,15 @@
         function onFullscreenChange() {
             const presView = document.getElementById('view-presentation');
             const header = document.getElementById('app-header');
+            const floatingBtn = document.getElementById('floating-fullscreen-btn');
             if (document.fullscreenElement) {
                 presView.classList.add('fullscreen-active');
                 if (header) header.style.display = 'none';
+                if (floatingBtn) floatingBtn.innerHTML = '<i class="fa-solid fa-compress"></i>';
             } else {
                 presView.classList.remove('fullscreen-active');
                 if (header) header.style.display = '';
+                if (floatingBtn) floatingBtn.innerHTML = '<i class="fa-solid fa-expand"></i>';
             }
         }
         document.addEventListener('fullscreenchange', onFullscreenChange);
